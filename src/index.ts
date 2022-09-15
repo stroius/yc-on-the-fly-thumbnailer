@@ -6,7 +6,7 @@ import {YC} from "./yc";
 const re = RegExp('(\.jpg|\.png)$', 'i');
 const ALLOWED_DIMENSIONS = new Set();
 
-const {AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET, PREFIX} = process.env;
+const {AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET} = process.env;
 
 if (process.env.ALLOWED_DIMENSIONS) {
     const dimensions = process.env.ALLOWED_DIMENSIONS.split(/\s*,\s*/);
@@ -28,10 +28,10 @@ const s3 = new S3(s3Config);
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
 
     const key = event.queryStringParameters.path;
-    const match = key.match(/((\d+)x(\d+))\/(.*)/);
+    const match = key.match(/((\d*)x(\d*))\/(.*)/);
     const dimensions = match[1];
-    const width = parseInt(match[2], 10);
-    const height = parseInt(match[3], 10);
+    const width = parseInt(match[2] || "0", 10);
+    const height = parseInt(match[3] || "0", 10);
     const originalKey = match[4];
 
     if (ALLOWED_DIMENSIONS.size > 0 && !ALLOWED_DIMENSIONS.has(dimensions)) {
@@ -49,15 +49,16 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
     // As I pass through only 2 file extensions I can simply define content type as follows
     const contentType = ext.toLowerCase() == "png" ? "image/png" : "image/jpg"
 
-    const transformer = sharp().resize({
-        width,
-        height,
-        fit: sharp.fit.cover,
-    });
+    // Compile options
+    var transformer_options = {fit: sharp.fit.cover}
+    if (width) { transformer_options["width"] = width }
+    if (height) { transformer_options["height"] = height }
+
+    const transformer = sharp().resize(transformer_options);
 
     const s3GetObjectStream = s3.getObject({
         Bucket: BUCKET,
-        Key: [PREFIX, originalKey].join('/'),
+        Key: originalKey,
     }).createReadStream();
 
     const pass = new stream.PassThrough();
@@ -74,7 +75,7 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
 
     const result = s3.upload({
             Bucket: BUCKET,
-            Key: [PREFIX, key].join('/'),
+            Key: "thumbnails/" + key,
             Body: pass,
             ContentType: contentType
         }

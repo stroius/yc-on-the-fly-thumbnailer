@@ -1,6 +1,6 @@
 import * as S3 from 'aws-sdk/clients/s3';
 
-const {AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET, FUNCTION_ID, PREFIX} = process.env;
+const {AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET, FUNCTION_ID} = process.env;
 
 const s3Config: S3.Types.ClientConfiguration = {
     apiVersion: '2006-03-01',
@@ -23,7 +23,7 @@ s3.putBucketWebsite({
             {
                 Condition: {
                     HttpErrorCodeReturnedEquals: "404",
-                    KeyPrefixEquals: PREFIX + "/"
+                    KeyPrefixEquals: "thumbnails/"
                 },
                 Redirect: {
                     HttpRedirectCode: "302",
