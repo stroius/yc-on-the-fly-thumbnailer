@@ -161,3 +161,7 @@ fabric.properties
 
 build.zip
 build
+package-lock.json
+.idea
+*.js
+*.js.map

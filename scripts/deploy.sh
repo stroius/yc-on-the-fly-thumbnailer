@@ -21,11 +21,11 @@ AWS_ACCESS_KEY=$AWS_ACCESS_KEY AWS_SECRET_KEY=$AWS_SECRET_KEY BUCKET=$BUCKET nod
 
 yc serverless function version create \
   --function-name=$FUNCTION_NAME \
-  --runtime nodejs12-preview \
+  --runtime nodejs12 \
   --entrypoint index.handler \
   --memory 128m \
   --execution-timeout 30s \
   --source-path ./build \
-  --environment AWS_ACCESS_KEY=$AWS_ACCESS_KEY,AWS_SECRET_KEY=$AWS_SECRET_KEY,BUCKET=$BUCKET
+  --environment AWS_ACCESS_KEY=$AWS_ACCESS_KEY,AWS_SECRET_KEY=$AWS_SECRET_KEY,BUCKET=$BUCKET,\"ALLOWED_DIMENSIONS=$ALLOWED_DIMENSIONS\"
 
 

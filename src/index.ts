@@ -3,9 +3,9 @@ import * as sharp from 'sharp';
 import * as stream from 'stream';
 import {YC} from "./yc";
 
-const re = RegExp('(\.jpg|\.png)$', 'i');
-const ALLOWED_DIMENSIONS = new Set();
+const re = RegExp('(\.jpg|\.png|\.jpeg)$', 'i');
 
+const ALLOWED_DIMENSIONS = new Set();
 const {AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET} = process.env;
 
 if (process.env.ALLOWED_DIMENSIONS) {
@@ -26,7 +26,6 @@ const s3 = new S3(s3Config);
 
 
 export async function handler(event: YC.CloudFunctionsHttpEvent) {
-
     const key = event.queryStringParameters.path;
     const match = key.match(/((\d*)x(\d*))\/(.*)/);
     const dimensions = match[1];
@@ -41,8 +40,13 @@ export async function handler(event: YC.CloudFunctionsHttpEvent) {
             body: '',
         };
     }
+
     if (originalKey.match(re) === null) {
-        return;
+        return {
+            statusCode: 400,
+            headers: {},
+            body: '',
+        };
     }
 
     const [ext,] = originalKey.split(".").reverse()
