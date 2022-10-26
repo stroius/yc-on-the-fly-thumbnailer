@@ -3,6 +3,11 @@ import * as sharp from 'sharp';
 import * as stream from 'stream';
 import {YC} from "./yc";
 
+/*
+When you make changes to the accepted image file extensions:
+    1. Change README.md
+    2. Make according changes in stroius/crmkit-backend OR notify developers
+ */
 const re = RegExp('(\.jpg|\.png|\.jpeg)$', 'i');
 
 const ALLOWED_DIMENSIONS = new Set();
